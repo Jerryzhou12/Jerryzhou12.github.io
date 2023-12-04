@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>产品到期监测</title>
+  <script>
+    var productArchives = [];
+
+    function calculateRemainingTime() {
+      var productName = document.getElementById("productName").value;
+      var expirationDate = new Date(document.getElementById("expirationDate").value);
+      var currentDate = new Date();
+
+      setInterval(function() {
+        currentDate = new Date();
+        updateRemainingTime(productName, expirationDate, currentDate);
+      }, 1000); // 每秒钟更新一次剩余时间
+
+      // 存档产品信息
+      var productInfo = {
+        name: productName,
+        expiration: expirationDate.toISOString(),
+        remainingTime: ""
+      };
+      productArchives.push(productInfo);
+      updateProductArchives();
+    }
+
+    function updateRemainingTime(productName, expirationDate, currentDate) {
+      // 计算剩余时间（毫秒）
+      var remainingTime = expirationDate.getTime() - currentDate.getTime();
+
+      // 将剩余时间转换为天数、小时数和分钟数
+      var days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+
+      // 更新存档中的剩余时间
+      for (var i = 0; i < productArchives.length; i++) {
+        if (productArchives[i].name === productName) {
+          productArchives[i].remainingTime = days + "天 " + hours + "小时 " + minutes + "分钟";
+          break;
+        }
+      }
+
+      updateProductArchives();
+    }
+
+    function updateProductArchives() {
+      var archiveList = document.getElementById("productArchives");
+      archiveList.innerHTML = "";
+
+      for (var i = 0; i < productArchives.length; i++) {
+        var listItem = document.createElement("li");
+        listItem.innerHTML = "<strong>" + productArchives[i].name + "</strong> - 到期日期：" + productArchives[i].expiration + " - 剩余时间：" + productArchives[i].remainingTime;
+        archiveList.appendChild(listItem);
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>产品到期监测</h1>
+  <label for="productName">产品名称：</label>
+  <input type="text" id="productName" placeholder="输入产品名称">
+
+  <label for="expirationDate">到期日期：</label>
+  <input type="date" id="expirationDate" onchange="calculateRemainingTime()">
+
+  <h2>存档记录：</h2>
+  <ul id="productArchives"></ul>
+</body>
+</html>
